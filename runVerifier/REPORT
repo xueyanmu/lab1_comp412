@@ -1,0 +1,20 @@
+Tarfile verifier, running in the directory:
+/storage-home/x/xm14/comp412/runVerifier/FilesToTest
+
+==> testing xm14.tar
+
+Checking the tar archive file
+
+   --- Error messages from tar (if any) follow ---
+   --- End of tar error messages ---
+
+Checking README file
+
+Traceback (most recent call last):
+  File "../code/VerifyMain.py", line 72, in <module>
+    main()
+  File "../code/VerifyMain.py", line 53, in main
+    get_id()                             
+  File "/storage-home/x/xm14/comp412/runVerifier/code/get_id.py", line 45, in get_id
+    if README == 1 and NAME != '' and NETID != '':
+UnboundLocalError: local variable 'NAME' referenced before assignment
