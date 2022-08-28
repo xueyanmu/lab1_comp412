@@ -1,0 +1,25 @@
+Tarfile verifier, running in the directory:
+/storage-home/x/xm14/comp412/lab1/checkTar/FilesToTest
+
+==> testing xm14.tar
+
+Checking the tar archive file
+fixed_submission
+xm14.tar
+
+   --- Error messages from tar (if any) follow ---
+   --- End of tar error messages ---
+
+Checking README file
+
+
+Checking for the executable '412fe'
+   --- Makefile is not in the top-level directory
+   --- Will look deeper, but you should fix this situation
+ 
+Archive does not contain a Makefile
+Will check for script
+Did not find 412fe
+
+---------------------------------------------------------
+
