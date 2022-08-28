@@ -11,9 +11,6 @@ def change_to_test_location(submission):
     folder = submission.split('.', 1)[0]
     fixed_folder = fixed_submission.split('.', 1)[0]
 
-    print ("fixed_submission")
-    print (fixed_submission)
-
     # if folder exists, remove it to restart what we are doing
     if os.path.exists(folder):
         cmd = 'rm -rf ' + fixed_folder 

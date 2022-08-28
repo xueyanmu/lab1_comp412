@@ -1,17 +1,16 @@
 Tarfile verifier, running in the directory:
-/storage-home/x/xm14/comp412/lab1/checkTar/FilesToTest
+/storage-home/x/xm14/comp412/verify_demo/FilesToTest
 
 ==> testing xm14.tar
 
 Checking the tar archive file
-fixed_submission
-xm14.tar
 
    --- Error messages from tar (if any) follow ---
    --- End of tar error messages ---
 
 Checking README file
 
+README specifies name 'Xueyan Mu' and netid 'xm14'
 
 Checking for the executable '412fe'
    --- Makefile is not in the top-level directory
@@ -19,7 +18,7 @@ Checking for the executable '412fe'
  
 Archive does not contain a Makefile
 Will check for script
-Did not find 412fe
+412fe found with correct permissiond
 
 ---------------------------------------------------------
 

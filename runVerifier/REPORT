@@ -1,7 +1,7 @@
 Tarfile verifier, running in the directory:
 /storage-home/x/xm14/comp412/runVerifier/FilesToTest
 
-==> testing xm14.tar
+==> testing xm14_new.tar
 
 Checking the tar archive file
 
@@ -10,11 +10,15 @@ Checking the tar archive file
 
 Checking README file
 
-Traceback (most recent call last):
-  File "../code/VerifyMain.py", line 72, in <module>
-    main()
-  File "../code/VerifyMain.py", line 53, in main
-    get_id()                             
-  File "/storage-home/x/xm14/comp412/runVerifier/code/get_id.py", line 45, in get_id
-    if README == 1 and NAME != '' and NETID != '':
-UnboundLocalError: local variable 'NAME' referenced before assignment
+README specifies name 'Xueyan Mu' and netid 'xm14'
+
+Checking for the executable '412fe'
+   --- Makefile is not in the top-level directory
+   --- Will look deeper, but you should fix this situation
+ 
+Archive does not contain a Makefile
+Will check for script
+412fe found with correct permissiond
+
+---------------------------------------------------------
+
