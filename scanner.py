@@ -2,16 +2,16 @@ from collections import deque
 
 
 class Scanner():
-    def __init__(self, filename):
-        self.filename = filename
+    def __init__(self):
+        # self.filename = filename
         self.nextLine = ""
         self.nextChar = ""
-        self.EOF = False
-        self.nextLineNum = -1
+        self.stateError = False
+        self.nextLineNum = 0
         self.tokenType = ""
         self.charPos = 0
         self.lexeme = ""
-        self.EOF = -1
+        self.stateError = -1
         self.ERROR = -2
         
 
@@ -21,7 +21,7 @@ class Scanner():
         self.tokens = deque()
 
         #store strings as integers
-        self.tokenTypeStringTable = []
+        self.tokenTypeStringTable = [None for i in range(11)]
         self.tokenTypeStringTable[0] = "MEMOP"
         self.tokenTypeStringTable[1] = "LOADI"
         self.tokenTypeStringTable[2] = "ARITHOP"
@@ -34,6 +34,30 @@ class Scanner():
         self.tokenTypeStringTable[9] = "EOF"
         self.tokenTypeStringTable[10] = "EOL"
 
+    # def readFile(self):
+    #     with open(self.filename) as f:
+    #         # readlines = f.read() 
+    #         # readlines += "\n EOF"
+    #         # print(readlines)
+    #         # print(len(readlines))
+
+
+    #         arrayOfLines = f.readlines()
+    #         # print(arrayOfLines)
+    #         arrayOfLines.append("\n EOF")
+    #         # print(arrayOfLines)
+
+    #         for line in arrayOfLines:
+    #             self.nextLine = line
+    #             print("self.nextLine: ", self.nextLine)
+    #             if self.nextLine == '\n EOF':
+    #                 print("poggy woggy")
+                    
+    #                 self.EOF = True
+    #                 self.nextChar = self.EOF
+    #                 print("self.nextChar: ", self.nextChar)
+    #             self.scanNextWord()
+            
 
     """
     Function is called by scanNextWord() 
@@ -47,20 +71,20 @@ class Scanner():
             self.nextChar = self.nextLine[0]
             self.nextLine = self.nextLine[1:]
         except IndexError: #TODO: this wont always be a an EOF related error, so catch more 
-            self.EOF = True
-            self.nextChar = self.EOF
+            self.stateError = True
+            self.nextChar = self.stateError
             print("Error with reading in character")
 
-        if self.nextChar == '\n' | self.nextChar == '\r': #TODO: how do we handle a carraige return and do we ned to handle /r/n
+        if self.nextChar == '\n' or self.nextChar == '\r': #TODO: how do we handle a carraige return and do we ned to handle /r/n
             self.charPos = 0
             self.nextLineNum += 1
-            
-            # self.scanNextLine()
 
-        if self.nextChar == self.EOF:
-            self.EOFHandler()
 
-        else:
+
+        if self.nextChar == self.stateError:
+            self.stateErrorHandler()
+
+        elif self.nextChar != self.stateError and self.nextChar != '\n' and self.nextChar != '\r':
             #default case
             self.charPos += 1
             self.lexeme += self.nextChar
@@ -73,26 +97,34 @@ class Scanner():
         self.charPos = 0
         pass
   
-    def EOFHandler(self):
-        self.charPos += 1
+    def stateErrorHandler(self):
+        
         return self.tokenType, self.lexeme
 
     def peekNextChar(self):
         try:
             return self.nextLine[0]
         except IndexError:
-            return self.EOF
+            return self.stateError
 
 
 #try to return a <token, lexeme> pair
-    def scanNextWord(self):
+    def scanNextWord(self, currLine):
         self.lexeme = ""
+        self.nextLine = currLine
+        print("self.nextLine: ", self.nextLine)
+        print("=====================================")
+
         self.scanNextChar()
 
+        print("self.nextChar", self.nextChar)
+        print("=====================================")
+
+
         # handle each character until the End of File
-        while self.nextChar != self.EOF: #TODO: THIS IS EOL CASE
+        while self.nextChar != self.stateError: #TODO: THIS IS EOL CASE
             # use these to move placeholders for charPos and lineNum
-            if self.nextChar == ' ' | self.nextChar == '\n' | self.nextChar == '\r':
+            if self.nextChar == ' ' or self.nextChar == '\n' or self.nextChar == '\r':
                 #eat whitespace, tab, newline chars
                 self.scanNextChar()
                 continue
@@ -122,10 +154,13 @@ class Scanner():
             if self.nextChar in numsToChars:
                 self.handleNums()
 
+            if self.nextChar == '/':
+                self.handleSlash()
             else:
                 print("error with scanning word in beginning")
-                pass
+                break
         
+        return self.tokenType, self.lexeme
         
 
     def handleS(self):
@@ -353,25 +388,52 @@ class Scanner():
             return self.tokenType, self.lexeme
         
 
+    def isCharAnInt(self, char):
+        numsToChars = [str(i) for i in range(10)]
+        if char in numsToChars:
+            return True
+        else:
+            return False
+
     def handleNums(self):
         self.scanNextChar()
-        if self.nextChar < '0' or self.nextChar > '9':
-            print ("error with scanning number")
-            pass
+        globalNum = 0
+        if self.isCharAnInt(self.nextChar):
+
+            if self.nextChar < '0' or self.nextChar > '9':
+                print ("error with scanning number")
+                pass
+            else:
+                num = 0
+                while self.nextChar >= '0' and self.nextChar <= '9':
+                    self.scanNextChar()
+                    num = num * 10 + int(self.nextChar)
+                globalNum = num
         else:
-            num = 0
-            while self.nextChar >= '0' and self.nextChar <= '9':
-                self.scanNextChar()
-                num = num * 10 + int(self.nextChar)
             self.tokenType = "CONSTANT"
-            self.lexeme = str(num)
+            self.lexeme = str(globalNum)
+            return self.tokenType, self.lexeme
+
+    def handleSlash(self):
+        print("self.nextChar is: ", self.nextChar)
+        self.scanNextChar()
+        if self.nextChar == '/':
+            self.scanNextChar()
+            while self.nextChar != '\n' and self.nextChar != '\r':
+            
+                if self.nextChar == '\n' or self.nextChar == '\r':
+                    break
+                else:
+                    self.scanNextChar()
+
+            self.tokenType = "COMMENT"
             return self.tokenType, self.lexeme
 
     def getLexeme(self):
         return self.lexeme
     def getCharPos(self):
         return self.charPos
-    def getlineNum(self):
-        return self.lineNum
+    def getLineNum(self):
+        return self.nextLineNum
     def getToken(self):
         return self.tokenType
