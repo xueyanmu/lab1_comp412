@@ -3,6 +3,7 @@
 // 
 // This file contains a couple of lexical errors
   loadI 10a => r1
+  loadI 10=> r2
   storeabc
   load  r1 => r1
 // The scanner should find and report these errors.
