@@ -5,7 +5,7 @@
 //
 store => r5
 store r1 r5
-store r1 =>
+store r1 => 
 loadI => r1
 loadI 1 r2
 loadI 1 =>

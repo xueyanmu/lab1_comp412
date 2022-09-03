@@ -2,7 +2,7 @@ import sys
 import getopt
 import argparse
 import time
-from scanner import Scanner
+from Scanner import Scanner
 
 def main():
     #start_time = time.time()
@@ -29,30 +29,62 @@ def main():
             print("read")
 
 def scan(filename):
-    f = open(filename, 'r')
-    block = f.readlines()
-    scanner = Scanner()
-    word = scanner.scanNextWord(block[0])
-    #print("FIRST word: ", word)
-    #print("=====================================")
 
+        #store strings as integers
+    TOKENS = [None for i in range(11)]
+    TOKENS[0] = ["MEMOP", "store", "load"]
+    TOKENS[1] = ["LOADI", "loadi"]
+    TOKENS[2] = ["ARITHOP", "add", "sub", "mult", "lshift", "rshift"]
+    TOKENS[3] = ["OUTPUT", "output"]
+    TOKENS[4] = ["NOP", "nop"]
+    TOKENS[5] = ["CONSTANT", 0]
+    TOKENS[6] = ["REGISTER", "r", 0] #needs to be followed by a number in handleR()
+    TOKENS[7] = ["COMMA", ","]
+    TOKENS[8] = ["INTO", "=>"]
+    TOKENS[9] = ["EOF", "eof"]
+    TOKENS[10] = ["ERROR", "error"]
+    # print( "Scanning file: " + filename)
 
-    while word != None:
-        
+    try: f = open(filename, 'r')
+    except: print("Error: Error occured when opening file: " + filename)
+
+    try:
+        block = f.readlines()
+        block.append("EOF")
+
+        scanner = Scanner()
+        # word = scanner.scanNextWord(block[0])
+        # print(word)
+    except:
+        print("Error: Error occured when reading file: " + filename + " at line 0")
+
+    word = ''
+
+    while word != -2:
         charPos = scanner.getCharPos()
-
         lineNum = scanner.getLineNum()
 
-        #print("CHAR : ", block[lineNum][charPos:])
-        #print("=====================================")
-        try:
-            word = scanner.scanNextWord(block[lineNum][charPos:])
-        except:
-            print("EOF")
-            break
-        print("word: ", word)
-        # print("word: ", word, "charPos: ", charPos, "lineNum: ", lineNum)
-        #print("=====================================")
+        if word == -1 and lineNum < len(block):
+            #print("index error")
+            scanner.incrementLineNum()
+            lineNum = scanner.getLineNum()
+
+            scanner.resetCharPos()
+            charPos = scanner.getCharPos()
+        elif word == -2:
+            return -2
+
+
+        print(block[lineNum])
+        word = scanner.scanNextWord(block[lineNum][charPos:])
+        
+        
+        if word != -1 and word != -2:
+            #print real words only
+            print("token word = " + str(TOKENS[word[0]][word[1]]))
+
+    f.close()
+
 
 if __name__ == "__main__":
     main()
