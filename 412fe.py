@@ -48,15 +48,20 @@ def scan(filename):
     try: f = open(filename, 'r')
     except: print("Error: Error occured when opening file: " + filename)
 
+
     try:
         block = f.readlines()
+        
+        # for line in block:
+        #     line.replace('\r\n', '\n')
         block.append("EOF")
+        print("block: " + str(block))
 
         scanner = Scanner()
         # word = scanner.scanNextWord(block[0])
         # print(word)
     except:
-        print("Error: Error occured when reading file: " + filename + " at line 0")
+        print("Error: Error occured when reading file: " + filename)
 
     word = ''
 
@@ -65,16 +70,19 @@ def scan(filename):
         lineNum = scanner.getLineNum()
 
         if word == -1 and lineNum < len(block):
-            #print("index error")
+            print("index error")
             scanner.incrementLineNum()
             lineNum = scanner.getLineNum()
 
             scanner.resetCharPos()
             charPos = scanner.getCharPos()
+
         elif word == -2:
             return -2
 
-
+        
+        print(len(block))
+        print(lineNum)
         print(block[lineNum])
         word = scanner.scanNextWord(block[lineNum][charPos:])
         
