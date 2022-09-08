@@ -112,7 +112,7 @@ def parse(filename):
             parser.parseLine(line)
             count += 1
     end = time.time()
-    #print("time: " + str(end - start))
+    print("time: " + str(end - start))
 
 
 

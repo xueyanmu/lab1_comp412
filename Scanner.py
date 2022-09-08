@@ -46,10 +46,8 @@ class Scanner():
     def getToken(self, tokenType, lexemeIndex):
         print("<" + self.TOKENS[tokenType][0] + ", '" + self.TOKENS[tokenType][lexemeIndex] + "'>")
         return self.TOKENS[tokenType][lexemeIndex]
-    @profile
+    #@profile
     def scanNextChar(self):
-        
-
         if self.nextCharsInLine != "":
             self.nextChar = self.nextCharsInLine[0]
             self.nextCharsInLine = self.nextCharsInLine[1:]
@@ -161,7 +159,7 @@ class Scanner():
         
 
 #try to return a <token, lexeme> pair
-    @profile
+    #@profile
     def scanNextWord(self, currLine):
         self.lexeme = ""
         self.nextCharsInLine = currLine
@@ -326,7 +324,7 @@ class Scanner():
         else:
             self.tokenType = 10
             return self.handleNonSyntacticWords()
-    @profile
+    #@profile
     def handleR(self):
         self.scanNextChar()
         if self.nextChar.isdigit():
