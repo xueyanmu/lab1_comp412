@@ -13,6 +13,7 @@ class Scanner():
         self.nextLineNum = 0
         self.charPos = 0
         self.lexeme = ""
+        self.pointer = 0
         
         
         self.reportError = False
@@ -49,7 +50,7 @@ class Scanner():
         return self.TOKENS[tokenType][lexemeIndex]
     #@profile
     #@profile
-    def scanNextChar(self):
+    def scanNextCharSavedDraft(self):
         # if self.nextCharsInLine:
         #     #print("yes")
         #     self.nextChar = self.nextCharsInLine[self.charPos]
@@ -108,18 +109,85 @@ class Scanner():
             # if peek == '\n' or peek == '\r':
             #     # get rid of the extra \n or \r
             #     self.nextCharsInLine = self.nextCharsInLin
+    
+    """
+    all this function should do is read in the next character in the line
+    with an incrementing index "pointer"
+    it will return a -1 if there is an index error.
+    it passes whatever 'next char' to the scanNextWord function and THAT IS IT
+
+
+    it should not be expected to record charPos (I BELIEVE) 
+    It shoudl not be recording line numbers
+    it 
+
+    also- erest at the beginning of each 'scanNextWord'
+
+    QUESTION: do we need to keep calling scanNextWord in the parser??
+    TODO: check all the above is correct before implementing.
+
+
+
+    """
+    def scanNextChar(self):
+        
+        if self.nextCharsInLine:
+            self.nextChar = self.nextCharsInLine[self.pointer]
+            #print("self next char: ~~" + self.nextChar + "~~")
+            #print("self next chars in line: " + self.nextCharsInLine[self.pointer:])
+            self.pointer += 1
+            #print("pointer: " + str(self.pointer))
+
+        else:
+            try : #MYBE NOT NEEEDED
+                self.nextChar = self.nextCharsInLine[self.pointer]
+                self.pointer += 1
+            except:
+                self.indexError = True
+                self.nextChar = -1
+                if self.nextCharsInLine and self.nextChar != '':
+                    #scan next char
+                    self.lexeme = self.lexeme[:-1]
+                    if self.nextChar == '\n' or self.nextChar == '\r':
+                        peekNext = ''
+                        if self.pointer < len(self.nextCharsInLine):
+                            peekNext = self.nextCharsInLine[self.pointer]
+                        
+                        if peekNext == '\n' or peekNext == '\r':
+                            self.nextChar = ''
+                        
+                        
+                    else:
+                        self.pointer -= 1
+                else:
+                    return self.handleNonSyntacticWords()
+
+        if self.nextChar == '\n' or self.nextChar == '\r': #TODO: handle /r/n
+            self.eolFlag = True
+        else:
+            #default case
+            self.lexeme += self.nextChar
+
+        # self.charPos += 1
+        # self.lexeme += self.nextChar
+
+
 
     # handle everything with wrong syntax or extra chars. Trashes comments and error-giving lines
     def handleNonSyntacticWords(self):
         #print("in handleNonSyntacticWords")
         #print("next chars in line: " + self.nextCharsInLine)
 
+        peek = ''
+        if self.pointer < len(self.nextCharsInLine):
+            peek = self.nextCharsInLine[self.pointer]
+        #     #return self.nextCharsInLine[0]
 
-        peek = self.peekNextChar()
         if self.tokenType == 10:
-            print("ERROR: there is an invalid lexical error for the word ' "+ self.lexeme +"' at line " + str(self.nextLineNum) + " and position " + str(self.charPos))
-            self.nextLineNum += 1
-            self.charPos = 0
+            #this error will be covered by the parser i guess
+            #print("ERROR: there is an invalid lexical error for the word ' "+ self.lexeme +"' at line " + str(self.nextLineNum) + " and position " + str(self.pointer))
+            # self.nextLineNum += 1
+            # self.charPos = 0
             return 10, 1
             # self.tokenType = 10 #repetitive
             #self.lexemeIndex = 1
@@ -129,6 +197,10 @@ class Scanner():
             if self.tokenType == None:
                 self.scanNextChar()
             else:
+                # self.eolFlag = True
+                # self.charPos = 0
+                # self.nextLineNum += 1
+                # print("returning a new line here")
                 return self.tokenType, self.lexemeIndex
 
         elif self.indexError == True or self.nextChar == -1 or peek == '':
@@ -138,63 +210,65 @@ class Scanner():
                 return -1
 
         else:
-            print("ERROR: there is an invalid lexical error for the word ' "+ self.lexeme +"' at line " + str(self.nextLineNum) + " and position " + str(self.charPos))
+            #print("ERROR: there is an invalid lexical error for the word ' "+ self.lexeme +"' at line " + str(self.nextLineNum) + " and position " + str(self.pointer))
 
             self.tokenType = 10
             self.lexemeIndex = 1
             #self.TOKENS[self.tokenType][self.lexemeIndex] = "ERROR: "+ self.lexeme +" uses invalid syntax at line " + str(self.nextLineNum) + " and position " + str(self.charPos)
             
-            self.nextLineNum += 1
-            self.charPos = 0
+            # self.nextLineNum += 1
+            # self.charPos = 0
             
             return self.tokenType, self.lexemeIndex
 
+    # def peekNextCharDraft(self):
+    #     try:
+    #         #return self.nextCharsInLine[self.pointer]
+    #         return self.nextCharsInLine[0]
+    #     except IndexError:
+    #         return ""    
 
-        # elif self.tokenType == 10:
-        #     self.nextLineNum += 1
-        #     self.charPos = 0
-        #     self.lexemeIndex = 1
-        #     ##self.TOKENS[self.tokenType][self.lexemeIndex] = "ERROR: there is an invalid lexical error for the word '"+ self.lexeme +"' at line " + str(self.nextLineNum) + " and position " + str(self.charPos)
-
-        #     return self.tokenType, self.lexemeIndex
-        # # check that the word is followed by a space or newline
-
-        
-        # theres a real lexical error here, so return an error token and trash the rest of the line
-        #elif self.tokenType != 10:
-    def peekNextChar(self):
-        try:
-            #return self.nextCharsInLine[self.charPos]
-            return self.nextCharsInLine[0]
-        except IndexError:
-            return ""
+    # def peekNextChar(self):
+    #     try:
+    #         return self.nextCharsInLine[self.pointer]
+    #         #return self.nextCharsInLine[0]
+    #     except IndexError:
+    #         return ""
 
     def unScanChar(self):
-        # self.reportError = True
-        unScanThisChar = self.lexeme[-1]
         self.lexeme = self.lexeme[:-1]
         if self.nextChar == '\n' or self.nextChar == '\r':
-            peekNext = self.peekNextChar()
-            # peekNext = ""
-            # try:
-            #     peekNext = self.nextCharsInLine[self.charPos]
-            # except:
-            #     pass
+            peekNext = ''
+            if self.pointer < len(self.nextCharsInLine):
+                peekNext = self.nextCharsInLine[self.pointer]
             
             if peekNext == '\n' or peekNext == '\r':
-                self.nextChar = ''
-            self.nextLineNum -= 1
-            
+                self.nextChar = ''            
         else:
-            self.charPos -= 1
-            self.nextCharsInLine = unScanThisChar + self.nextCharsInLine
+            self.pointer -= 1
+            #self.nextCharsInLine = unScanThisChar + self.nextCharsInLine
         
+    # def unScanCharDraft(self):
+    #     # self.reportError = True
+    #     unScanThisChar = self.lexeme[-1]
+    #     self.lexeme = self.lexeme[:-1]
+    #     if self.nextChar == '\n' or self.nextChar == '\r':
+    #         peekNext = self.peekNextChar()
+            
+    #         if peekNext == '\n' or peekNext == '\r':
+    #             self.nextChar = ''
+    #         self.nextLineNum -= 1
+            
+    #     else:
+    #         self.charPos -= 1
+    #         self.nextCharsInLine = unScanThisChar + self.nextCharsInLine
         
-
 #try to return a <token, lexeme> pair
     #@profile
     def scanNextWord(self, currLine):
+        
         self.lexeme = ""
+        #print("curr line: " + currLine)
         self.nextCharsInLine = currLine
         if self.eolFlag == True:
             self.eolFlag = False
@@ -208,6 +282,7 @@ class Scanner():
             while not self.indexError: #TODO: THIS IS EOL CASE
                 # use these to move placeholders for charPos and lineNum
                 while self.nextChar == ' ' or self.nextChar == '\t':
+                    self.lexeme += ' '
                     self.scanNextChar()
                 if self.nextChar == 'r':
                     self.scanNextChar()
@@ -313,8 +388,10 @@ class Scanner():
                         if self.nextChar == 'a':
                             self.scanNextChar()
                             if self.nextChar == 'd':
-                                
-                                if self.peekNextChar() == "I":
+                                peek = ''
+                                if self.pointer < len(self.nextCharsInLine):
+                                    peek = self.nextCharsInLine[self.pointer]
+                                if peek == "I":
                                     self.scanNextChar()
                                     if self.nextChar == 'I':
                                         self.tokenType = 1 #LOADI
@@ -361,13 +438,17 @@ class Scanner():
     
                 elif self.nextChar in numsToChars:
                     self.scanNextChar()
-                    peek = self.peekNextChar()
+                    peek = ''
+                    if self.pointer < len(self.nextCharsInLine):
+                        peek = self.nextCharsInLine[self.pointer]
                     while str(self.nextChar).isdigit() and str(peek).isdigit():
                         self.scanNextChar()
                     if self.lexeme[-1].isdigit() == False:
                         self.unScanChar()
 
-                    peek = self.peekNextChar()
+                    peek = ''
+                    if self.pointer < len(self.nextCharsInLine):
+                        peek = self.nextCharsInLine[self.pointer]
                     if peek.isalpha():
                         self.tokenType = 10
                         self.lexemeIndex = 1
@@ -812,13 +893,17 @@ class Scanner():
 
     def handleNums(self):
         self.scanNextChar()
-        peek = self.peekNextChar()
+        peek = ''
+        if self.pointer < len(self.nextCharsInLine):
+            peek = self.nextCharsInLine[self.pointer]
         while str(self.nextChar).isdigit() and str(peek).isdigit():
             self.scanNextChar()
         if self.lexeme[-1].isdigit() == False:
             self.unScanChar()
 
-        peek = self.peekNextChar()
+        peek = ''
+        if self.pointer < len(self.nextCharsInLine):
+            peek = self.nextCharsInLine[self.pointer]
         if peek.isalpha():
             self.tokenType = 10
             self.lexemeIndex = 1
@@ -863,3 +948,7 @@ class Scanner():
         self.charPos = 0
     def setLineNum(self, line):
         self.nextLineNum = line
+    def setPointer(self, pointer):
+        self.pointer = pointer
+    def getPointer(self):
+        return self.pointer

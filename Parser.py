@@ -1,10 +1,5 @@
-from lib2to3.pgen2 import token
-from lib2to3.pgen2.parse import ParseError
-from re import S
-import sys
 from Scanner import Scanner
 from Tokens import Tokens
-import logging
 
 class Parser:
     def __init__(self):
@@ -13,77 +8,165 @@ class Parser:
         self.currToken = 10
         self.scanner = Scanner()
         self.tokens = Tokens()
-        # self.charPos = 0
+        self.pointer = 0
         self.lineNum = 1
-        self.recursionDepth = 0
         self.fullLine = ''
-        #self.logger = logging.getLogger(__name__)
-
-        class ParserException(Exception):
-            def __init__(self, message):
-                self.message = message
     
     #@profile
     def parseLine(self, line):
-        
         self.scanner.setLineNum(self.lineNum)
-        exampleLineNum = self.scanner.getLineNum()
-        #print("example line num " + str(exampleLineNum))
-        self.charPos = self.scanner.getCharPos()
+        self.pointer = self.scanner.getPointer() #todo: maybe dont function call this
         self.fullLine = line
         #chwck w piazza this is stored corectly
         #check time library 
         self.currToken = self.scanner.scanNextWord(self.fullLine)
-
-        #self.restOfLine = line
-        #self.currToken = self.scanner.scanNextWord(self.restOfLine[self.charPos:])
-        # self.currToken = self.scanner.scanNextWord(self.restOfLine[self.charPos:]) #todo: try catch
-        # self.charPos = self.scanner.getCharPos()
-        # self.restOfLine = self.restOfLine[self.charPos:]
-
-        #if self.currToken != -1 and self.currToken != -2:
-            ##print(Tokens().getToken(self.currToken[0], self.currToken[1]))
         
-
         try:
             # print("in first set" + str(self.currToken))
             if self.tokens.inFirstSet(self.currToken[0]):
-                
-                # #print("   1 char pos " + str(self.charPos))
-                #print(self.fullLine[self.charPos:])
-
-                #self.parsedTokens.append(self.currToken)
-                
-                # #print("   2 char pos " + str(self.charPos))
-                # #print("   2 rest of line " + self.fullLine[self.charPos:])
-                # print("in first set" + str(self.currToken))
-                self.recursionDepth += 1        
                 try:
+                    #ARITHOP
                     if self.currToken[0] == 2:
-                        self.handleARITHOP()
+                        #ARITHOP   
+                        if self.accept(2):
+                            #print("accept arithop " + str(self.currToken))
+                            if self.accept(6):
+                                #print("accept reg " + str(self.currToken))
+                                if self.accept(7):
+                                    #print("accept comma " + str(self.currToken))
+                                    if self.accept(6):
+                                        #print("accept reg " + str(self.currToken))
+                                        if self.accept(8):
+                                            #print("accept into " + str(self.currToken))
+                                            if self.accept(6):
+                                                #print("accept reg " + str(self.currToken))
+                                                if self.accept(11) or self.currToken in self.tokens.errorSet:
+                                                    return True
+                                                # elif self.accept(11): #eol
+                                                #     #print("accept EOL " + str(self.currToken))
+                                                #     return True
+                                                else:
+                                                    #print(self.scanner.getLineNum())
+                                                    self.parserErrorTerminal(": Wrong or missing token type - expected %s" % "no more tokens")
+                                            else:
+                                                #print(self.scanner.getLineNum())
+                                                self.parserErrorNonTerminal(": Wrong or missing token type - expected %s" % "REG")
+                                        else:
+                                            self.parserErrorNonTerminal(": Wrong or missing token type - expected %s" % "INTO")
+                                    else:
+                                        self.parserErrorNonTerminal(": Wrong or missing token type - expected %s" % "REG")
+                                else:
+                                    self.parserErrorNonTerminal(": Wrong or missing token type - expected %s" % "COMMA")
+                            else:
+                                self.parserErrorNonTerminal(": Wrong or missing token type - expected %s" % "REG")
+                        else:
+                            self.parserErrorNonTerminal(": Wrong or missing token type - expected %s" % "ARITHOP")
+
+                    #EOL
                     elif self.currToken[0] == 11:
-                        self.handleEOL()
+                        #EOL
+                        if self.accept(11):
+                            #print("accept eol " + str(self.currToken))
+                            return True
+                        else:
+                            self.parserErrorNonTerminal(": Wrong or missing token type - expected %s" % "EOL")
+
+                    #MEMOP
                     elif self.currToken[0] == 0:
-                        self.handleMEMOP()
+                        #MEMOP
+                        if self.accept(0): #load or store
+                            #print("accept load or store " + str(self.currToken))
+                            if self.accept(6): #register
+                                #print("accept reg " + str(self.currToken))
+                                if self.accept(8): #into
+                                    #print("accept into " + str(self.currToken))
+                                    if self.accept(6): # register
+                                        #print("accept reg " + str(self.currToken))
+                                        #print("peeepee" + self.currToken)
+                                        if self.accept(11) or self.currToken in self.tokens.errorSet:
+                                            
+                                            return True
+                                        # elif self.accept(11): #eol
+                                        #     #print("accept EOL " + str(self.currToken))
+                                        #     return True
+                                        else:
+                                            self.parserErrorTerminal(": Wrong or missing token type - expected %s" % "no more tokens")
+                                    else:
+                                        self.parserErrorNonTerminal(": Wrong or missing token type - expected %s" % "REG")
+                                else:
+                                    self.parserErrorNonTerminal(": Wrong or missing token type - expected %s" % "INTO")
+                            else:
+                                self.parserErrorNonTerminal(": Wrong or missing token type - expected %s" % "REG")
+                        else:
+                            self.parserErrorNonTerminal(": Wrong or missing token type - expected %s" % "LOAD or STORE")
+
+                    #LOADI
                     elif self.currToken[0] == 1:
-                        self.handleLOADI()
+                        if self.accept(1):
+                            #print("accept loadi " + str(self.currToken))
+                            if self.accept(5):
+                                #print("accept number " + str(self.currToken))
+                                if self.accept(8):
+                                    #print("accept into " + str(self.currToken))
+                                    if self.accept(6):
+                                        #print("accept reg " + str(self.currToken))
+                                        if self.accept(11) or self.currToken in self.tokens.errorSet or self.currToken[0] in self.tokens.errorSet or self.currToken[0] == 10:
+                                            return True
+                                        # elif self.accept(11): #eol
+                                        #     #print("accept EOL " + str(self.currToken))
+                                        #     return True
+                                        else:
+                                            self.parserErrorTerminal(": Wrong or missing token type - expected %s" % "no more tokens")
+                                    else:
+                                        self.parserErrorNonTerminal(": Wrong or missing token type - expected REG")
+                                else:
+                                    self.parserErrorNonTerminal(": Wrong or missing token type - expected %s" % "INTO")
+                            else:
+                                self.parserErrorNonTerminal(": Wrong or missing token type - expected %s" % "INT")
+                        else:
+                            self.parserErrorNonTerminal(": Wrong or missing token type - expected %s" % "LOADI")
 
+                    #OUTPUT
                     elif self.currToken[0] == 3:
-                        self.handleOUTPUT()
-                    elif self.currToken[0] == 4:
-                        self.handleNOP()
-                    elif self.currToken[0] == 9:
-                        self.handleEOF()
+                        if self.accept(3):
+                            if self.accept(5):
+                                if self.accept(11) or self.currToken in self.tokens.errorSet:
+                                    return True
+                                else:
+                                    self.parserErrorTerminal(": Wrong or missing token type - expected %s" % "no more tokens")
+                            else:
+                                self.parserErrorNonTerminal(": Wrong or missing token type - expected %s" % "CONSTANT")
+                        else:
+                            self.parserErrorNonTerminal(": Wrong or missing token type - expected %s" % "OUTPUT")
 
-                    
+                    #NOP
+                    elif self.currToken[0] == 4:
+                        if self.accept(4):
+                            #print("accept nop " + str(self.currToken))
+                            if self.accept(11) or self.currToken in self.tokens.errorSet:
+                                #print("2 peeepee" + self.currToken)
+                                return True
+                            # elif self.accept(11): #eol
+                            #     #print("accept EOL " + str(self.currToken))
+                            #     return True
+                            else:
+                                self.parserErrorTerminal(": Wrong or missing token type - expected %s" % "no more tokens")
+                        else:
+                            self.parserErrorNonTerminal(": Wrong or missing token type - expected %s" % "NOP")
+
+                    #EOF
+                    elif self.currToken[0] == 9:
+                        if self.accept(10):
+                        #print("accept eof " + str(self.currToken))
+                            return True
+                        else:
+                            self.parserErrorNonTerminal(": Wrong or missing token type - expected %s" % "EOF")
+                
                 except Exception as error:
                     arrDontThrowError = [12, 11, 10, 9, -1, -2, None]
                     if self.currToken[0] not in arrDontThrowError:
-                        print("ERROR: Parsing Error at line: " + str(self.lineNum) + " and character position: " + str(self.charPos))
+                        print("ERROR: Parsing Error at line: " + str(self.lineNum) + " and character position: " + str(self.pointer))
 
-                    #print an error if toek isnt a comment, a None, or an EOF/EOL
-                    # print("peeepee" + str(self.currToken))
-                    # self.parserError( "Error: the line: has a syntax error with the token: '" + str(self.currToken) + "'") 
             else: #toekn not in first set
                 if self.currToken[0] == 12: #ignore comments
                     return
@@ -98,15 +181,17 @@ class Parser:
     #@profile
     def accept(self, token):
         try:
-            self.charPos = self.scanner.getCharPos()
+            self.pointer = self.scanner.getPointer()
+            #print("acceptance of token: "+str(self.currToken) +" at pointer position: " + str(self.pointer))
             if self.currToken[0] == token:
-                self.currToken = self.scanner.scanNextWord(self.fullLine[self.charPos:])
-                self.charPos = self.scanner.getCharPos()
+                # self.currToken = self.scanner.scanNextWord(self.fullLine[self.pointer:])
+                self.currToken = self.scanner.scanNextWord(self.fullLine)
+                self.pointer = self.scanner.getPointer()
                 return True
             else:
                 return False
         except Exception as error:
-            print("ERROR: Error with accepting token: " + token + " at line: " + str(self.lineNum) + " charPos: " + str(self.charPos))
+            print("ERROR: Error with accepting token: " + token + " at line: " + str(self.lineNum) + " pointer: " + str(self.pointer))
             return False
 
 
@@ -171,7 +256,6 @@ class Parser:
 
     def handleARITHOP(self):
         #print("arithop")
-        #print(self.scanner.getLineNum())
         if self.accept(2):
             #print("accept arithop " + str(self.currToken))
             if self.accept(6):
@@ -200,7 +284,7 @@ class Parser:
                     else:
                         self.parserErrorNonTerminal(": Wrong or missing token type - expected %s" % "REG")
                 else:
-                    self.parserErrorNonTerminal(": Wrong or missing token type - expected %s" % "ARITHOP")
+                    self.parserErrorNonTerminal(": Wrong or missing token type - expected %s" % "COMMA")
             else:
                 self.parserErrorNonTerminal(": Wrong or missing token type - expected %s" % "REG")
         else:
@@ -249,6 +333,7 @@ class Parser:
             return True
         else:
             self.parserErrorNonTerminal(": Wrong or missing token type - expected %s" % "EOF")
+    
     def handleEOL(self):
         #print("eol")
         if self.accept(11):
