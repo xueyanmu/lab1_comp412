@@ -10,7 +10,7 @@ import time
 
 def main():
     #FOR DEBUGGING PURPOSES ONLY
-    scan("test_inputs/T128k.i")
+    parse("test_inputs/T128k.i")
     cmd_parser = argparse.ArgumentParser(description='COMP 412 Lab 1', add_help=False)
 
     cmd_parser.add_argument('-h', action='store_true',)
@@ -37,6 +37,7 @@ def main():
             parse(args.parse)
         elif arg == '--r':
             print("read")
+
 
 def scan(filename):
     try: f = open(filename, 'r')
@@ -102,12 +103,14 @@ def scan(filename):
     print("word scan time: " + str(wordScanTime))
     f.close()
 
+@profile
 def parse(filename):
     count = 1
     start = time.time()
+    parser = Parser()
     with open(filename) as f:
         for line in f:
-            parser = Parser()
+            
             
             parser.setLineNumber(count)
             parser.parseLine(line)

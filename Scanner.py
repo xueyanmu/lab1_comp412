@@ -13,7 +13,8 @@ class Scanner():
         self.nextLineNum = 0
         self.charPos = 0
         self.lexeme = ""
-
+        
+        
         self.reportError = False
         self.lexemeIndex = 0
         self.eolFlag = False
@@ -47,10 +48,30 @@ class Scanner():
         print("<" + self.TOKENS[tokenType][0] + ", '" + self.TOKENS[tokenType][lexemeIndex] + "'>")
         return self.TOKENS[tokenType][lexemeIndex]
     #@profile
+    #@profile
     def scanNextChar(self):
+        # if self.nextCharsInLine:
+        #     #print("yes")
+        #     self.nextChar = self.nextCharsInLine[self.charPos]
+        #     self.charPos += 1
+        
         if self.nextCharsInLine != "":
             self.nextChar = self.nextCharsInLine[0]
             self.nextCharsInLine = self.nextCharsInLine[1:]
+
+        # else:
+        #     try:
+        #         self.nextChar = self.nextCharsInLine[self.charPos]
+        #         self.charPos += 1
+        #     except:
+        #         self.nextChar = -1
+        #         self.indexError = True
+        #         if self.nextCharsInLine != "" and self.nextChar != '':
+        #             self.unScanChar()
+        #         else:
+        #             return self.handleNonSyntacticWords()
+        #         #return -1
+
         else:
             try :
                 self.nextChar = self.nextCharsInLine[0]
@@ -64,40 +85,47 @@ class Scanner():
                     return self.handleNonSyntacticWords()
 
         if self.nextChar == ' ' or self.nextChar == '\t':
+            
             self.lexeme += ' ' #maybe this will solve the number problem
+            #print("next chars in line" + self.nextCharsInLine[self.charPos:])
             self.charPos += 1
 
         elif self.nextChar == '\n' or self.nextChar == '\r': #TODO: handle /r/n
             self.eolFlag = True
             self.charPos = 0
             self.nextLineNum += 1
+
             if self.nextCharsInLine != '':
                 self.nextCharsInLine = self.nextCharsInLine[1:]
-            #self.nextCharsInLine == ""
-            # else:
-            #     self.eolFlag = True
-            #     self.charPos = 0
-            #     self.nextLineNum += 1
-            #     self.nextCharsInLine = self.nextCharsInLine[1:]
-
-
-            # do we even need this? since the rest of the lines are being erased after this
-            # peek = self.peekNextChar()
-            # if peek == '\n' or peek == '\r':
-            #     # get rid of the extra \n or \r
-            #     self.nextCharsInLine = self.nextCharsInLine[1:]
-
         else:
         #elif self.nextChar != '\n' and self.nextChar != '\r' and self.nextChar != -1 and self.nextChar != '\t' and self.nextChar != ' ':
             #default case
             self.charPos += 1
             self.lexeme += self.nextChar
 
-    # handle everything with wrong syntax or extra chars. Trashes comments and error-giving lines
-    def handleNonSyntacticWords(self):        
-        peek = self.peekNextChar()
+            # do we even need this? since the rest of the lines are being erased after this
+            # peek = self.peekNextChar()
+            # if peek == '\n' or peek == '\r':
+            #     # get rid of the extra \n or \r
+            #     self.nextCharsInLine = self.nextCharsInLin
 
-        if peek == ' ' or peek == '\t' or peek == '\n' or peek == '\r' or peek == '=' or peek == ',':
+    # handle everything with wrong syntax or extra chars. Trashes comments and error-giving lines
+    def handleNonSyntacticWords(self):
+        #print("in handleNonSyntacticWords")
+        #print("next chars in line: " + self.nextCharsInLine)
+
+
+        peek = self.peekNextChar()
+        if self.tokenType == 10:
+            print("ERROR: there is an invalid lexical error for the word ' "+ self.lexeme +"' at line " + str(self.nextLineNum) + " and position " + str(self.charPos))
+            self.nextLineNum += 1
+            self.charPos = 0
+            return 10, 1
+            # self.tokenType = 10 #repetitive
+            #self.lexemeIndex = 1
+            #self.TOKENS[self.tokenType][self.lexemeIndex] = "ERROR: "+ self.lexeme +" uses invalid syntax at line " + str(self.nextLineNum) + " and position " + str(self.charPos)
+
+        if peek == ' ' or peek == '\t' or peek == '\n' or peek == '\r' or peek == '=' or peek == ',' or peek == '':
             if self.tokenType == None:
                 self.scanNextChar()
             else:
@@ -136,6 +164,7 @@ class Scanner():
         #elif self.tokenType != 10:
     def peekNextChar(self):
         try:
+            #return self.nextCharsInLine[self.charPos]
             return self.nextCharsInLine[0]
         except IndexError:
             return ""
@@ -145,8 +174,12 @@ class Scanner():
         unScanThisChar = self.lexeme[-1]
         self.lexeme = self.lexeme[:-1]
         if self.nextChar == '\n' or self.nextChar == '\r':
-            
             peekNext = self.peekNextChar()
+            # peekNext = ""
+            # try:
+            #     peekNext = self.nextCharsInLine[self.charPos]
+            # except:
+            #     pass
             
             if peekNext == '\n' or peekNext == '\r':
                 self.nextChar = ''
@@ -177,29 +210,326 @@ class Scanner():
                 while self.nextChar == ' ' or self.nextChar == '\t':
                     self.scanNextChar()
                 if self.nextChar == 'r':
-                    return self.handleR()
+                    self.scanNextChar()
+                    if self.nextChar.isdigit():
+                        while self.nextChar.isdigit():
+                            self.scanNextChar()
+
+                        # get rid of extra space
+                        if self.lexeme[-1].isdigit() == False:
+                            self.unScanChar()
+                        return 6, 1
+                        # self.tokenType = 6
+                        # self.lexemeIndex = 1
+
+                        # #store the register name
+                        # self.TOKENS[self.tokenType][self.lexemeIndex] = self.lexeme
+                        
+                        # return self.tokenType, self.lexemeIndex
+                        # return self.handleNonSyntacticWords()
+
+                        
+                    elif self.nextChar == 's':
+                        self.scanNextChar()
+                        if self.nextChar == 'h':
+                            self.scanNextChar()
+                            if self.nextChar == 'i':
+                                self.scanNextChar()
+                                if self.nextChar == 'f':
+                                    self.scanNextChar()
+                                    if self.nextChar == 't':
+                                        self.tokenType = 2 #ARITHOP
+                                        self.lexemeIndex = 5 #RSHIFT
+                                        return self.handleNonSyntacticWords()
+
+                                    else:
+                                        print("ERROR: there is an invalid lexical error for the word ' "+ self.lexeme +"' at line " + str(self.nextLineNum) + " and position " + str(self.charPos))
+                                        self.nextLineNum += 1
+                                        self.charPos = 0
+                                        return 10, 1
+                                else:
+                                    print("ERROR: there is an invalid lexical error for the word ' "+ self.lexeme +"' at line " + str(self.nextLineNum) + " and position " + str(self.charPos))
+                                    self.nextLineNum += 1
+                                    self.charPos = 0
+                                    return 10, 1
+                            else:
+                                print("ERROR: there is an invalid lexical error for the word ' "+ self.lexeme +"' at line " + str(self.nextLineNum) + " and position " + str(self.charPos))
+                                self.nextLineNum += 1
+                                self.charPos = 0
+                                return 10, 1
+                        else:
+                            print("ERROR: there is an invalid lexical error for the word ' "+ self.lexeme +"' at line " + str(self.nextLineNum) + " and position " + str(self.charPos))
+                            self.nextLineNum += 1
+                            self.charPos = 0
+                            return 10, 1
+                    else:
+                        print("ERROR: there is an invalid lexical error for the word ' "+ self.lexeme +"' at line " + str(self.nextLineNum) + " and position " + str(self.charPos))
+                        self.nextLineNum += 1
+                        self.charPos = 0
+                        return 10, 1
+
                 elif self.nextChar == ',':
-                    return self.handleComma()
+                    return 7, 1
+
                 elif self.nextChar == '=':
-                    return self.handleEquals()
+                    self.scanNextChar()
+                    if self.nextChar == '>':
+                        return 8, 1
+                            # self.tokenType = 8 #INTO
+                            # self.lexemeIndex = 1 #=>
+                            # #self.charPos
+                            # return self.tokenType, self.lexemeIndex
+                    else:
+                        print("ERROR: there is an invalid lexical error for the word ' "+ self.lexeme +"' at line " + str(self.nextLineNum) + " and position " + str(self.charPos))
+                        self.nextLineNum += 1
+                        self.charPos = 0
+                        return 10, 1
+
                 elif self.nextChar == 'a':
-                    return self.handleA()
+                    self.scanNextChar()
+                    if self.nextChar == 'd':
+                        self.scanNextChar()
+                        if self.nextChar == 'd':
+                            self.tokenType = 2 #ARITHOP
+                            self.lexemeIndex = 1 #ADD
+                            return self.handleNonSyntacticWords()
+
+                        else:
+                            print("ERROR: there is an invalid lexical error for the word ' "+ self.lexeme +"' at line " + str(self.nextLineNum) + " and position " + str(self.charPos))
+                            self.nextLineNum += 1
+                            self.charPos = 0
+                            return 10, 1
+
+                    else:
+                        print("ERROR: there is an invalid lexical error for the word ' "+ self.lexeme +"' at line " + str(self.nextLineNum) + " and position " + str(self.charPos))
+                        self.nextLineNum += 1
+                        self.charPos = 0
+                        return 10, 1
+
                 elif self.nextChar == 'l':
-                    return self.handleL()
+                    self.scanNextChar()
+                    if self.nextChar == 'o':
+                        self.scanNextChar()
+                        if self.nextChar == 'a':
+                            self.scanNextChar()
+                            if self.nextChar == 'd':
+                                
+                                if self.peekNextChar() == "I":
+                                    self.scanNextChar()
+                                    if self.nextChar == 'I':
+                                        self.tokenType = 1 #LOADI
+                                        self.lexemeIndex = 1 #LOADI
+                                        return self.handleNonSyntacticWords()
+                                else:
+                                    self.tokenType = 0 #MEMOP
+                                    self.lexemeIndex = 2 #LOAD
+                                    return self.handleNonSyntacticWords()
+                            else:
+                                self.tokenType = 10
+                                return self.handleNonSyntacticWords()
+                        else:
+                            self.tokenType = 10
+                            return self.handleNonSyntacticWords()
+                    elif self.nextChar == 's':
+                        self.scanNextChar()
+                        if self.nextChar == 'h':
+                            self.scanNextChar()
+                            if self.nextChar == 'i':
+                                self.scanNextChar()
+                                if self.nextChar == 'f':
+                                    self.scanNextChar()
+                                    if self.nextChar == 't':
+                                            self.tokenType = 2 #ARITHOP
+                                            self.lexemeIndex = 4 #LSHIFT
+                                            return self.handleNonSyntacticWords()
+
+                                    else:
+                                        self.tokenType = 10
+                                        return self.handleNonSyntacticWords()
+                                else:
+                                    self.tokenType = 10
+                                    return self.handleNonSyntacticWords()
+                            else:
+                                self.tokenType = 10
+                                return self.handleNonSyntacticWords()
+                        else:
+                            self.tokenType = 10
+                            return self.handleNonSyntacticWords()
+                    else:
+                        self.tokenType = 10
+                        return self.handleNonSyntacticWords()
+    
                 elif self.nextChar in numsToChars:
-                    return self.handleNums()
+                    self.scanNextChar()
+                    peek = self.peekNextChar()
+                    while str(self.nextChar).isdigit() and str(peek).isdigit():
+                        self.scanNextChar()
+                    if self.lexeme[-1].isdigit() == False:
+                        self.unScanChar()
+
+                    peek = self.peekNextChar()
+                    if peek.isalpha():
+                        self.tokenType = 10
+                        self.lexemeIndex = 1
+                    else:
+                        self.tokenType = 5 #CONSTANT
+                        self.lexemeIndex = 1
+
+                        self.TOKENS[self.tokenType][self.lexemeIndex] = self.lexeme
+                        
+                    return self.handleNonSyntacticWords()
+
                 elif self.nextChar == 's':
-                    return self.handleS()
+                    self.scanNextChar()
+                    if self.nextChar == 't':
+                        self.scanNextChar()
+                        if self.nextChar == 'o':
+                            self.scanNextChar()
+                            if self.nextChar == 'r':
+                                self.scanNextChar()
+                                if self.nextChar == 'e':
+                                    self.tokenType = 0 #MEMOP
+                                    self.lexemeIndex = 1 #STORE
+                                    return self.handleNonSyntacticWords()
+                                else:
+                                    self.tokenType = 10
+                                    return self.handleNonSyntacticWords()
+                            else:
+                                self.tokenType = 10
+                                return self.handleNonSyntacticWords()
+                        else:
+                            self.tokenType = 10
+                            return self.handleNonSyntacticWords()
+
+                    elif self.nextChar == 'u':
+                        self.scanNextChar()
+                        if self.nextChar == 'b':
+                            self.tokenType = 2 #ARITHOP
+                            self.lexemeIndex = 2 #SUB
+                            return self.tokenType, self.lexemeIndex
+
+                        else:
+                            self.tokenType = 10
+                            return self.handleNonSyntacticWords()
+                    else:
+                        self.tokenType = 10
+                        return self.handleNonSyntacticWords()
+
+
                 elif self.nextChar == 'm':
-                    return self.handleM()
+                    self.scanNextChar()
+                    if self.nextChar == 'u':
+                        self.scanNextChar()
+                        if self.nextChar == 'l':
+                            self.scanNextChar()
+                            if self.nextChar == 't':
+                                    self.tokenType = 2 #ARITHOP
+                                    self.lexemeIndex = 3 #MULT
+                                    return self.handleNonSyntacticWords()
+
+                            else:
+                                self.tokenType = 10
+                                return self.handleNonSyntacticWords()
+                        else:
+                            self.tokenType = 10
+                            return self.handleNonSyntacticWords()
+                    else:
+                        self.tokenType = 10
+                        return self.handleNonSyntacticWords()
+
                 elif self.nextChar == '/':
-                    self.handleSlash()
+                    self.scanNextChar()
+                    #print("slash self.nextChar is: ", self.nextChar)
+                    if self.nextChar == '/':
+                        # self.tokenType = 12 #COMMENT
+                        # self.lexemeIndex = 1
+                        # # return self.tokenType, self.lexemeIndex
+
+                        self.indexError = True
+                        return -1
+                    else:
+                        self.tokenType = 10
+                        self.lexemeIndex = 1
+                        print("ERROR: the symbol " + self.lexeme + " uses invalid syntax at line " + str(self.nextLineNum) + " and position " + str(self.charPos))
+                        ##self.TOKENS[self.tokenType][self.lexemeIndex] = "ERROR: "+ self.lexeme +" uses invalid syntax at line " + str(self.nextLineNum) + " and position " + str(self.charPos)
+                    
+                        return self.tokenType, self.lexemeIndex
                 elif self.nextChar == 'n':
-                    return self.handleN()
+                    self.scanNextChar()
+                    if self.nextChar == 'o':
+                        self.scanNextChar()
+                        if self.nextChar == 'p':
+                            return 4, 1
+                            # self.tokenType = 4 #NOP
+                            # self.lexemeIndex = 1 #NOP
+
+                            # return self.tokenType, self.lexemeIndex
+                            #return self.handleNonSyntacticWords()
+                        else:
+                            self.tokenType = 10
+                            return self.handleNonSyntacticWords()
+                    else:
+                        self.tokenType = 10
+                        return self.handleNonSyntacticWords()
+
                 elif self.nextChar == 'o':
-                    return self.handleO()
+                    self.scanNextChar()
+                    if self.nextChar == 'u':
+                        self.scanNextChar()
+                        if self.nextChar == 't':
+                            self.scanNextChar()
+                            if self.nextChar == 'p':
+                                self.scanNextChar()
+                                if self.nextChar == 'u':
+                                    self.scanNextChar()
+                                    if self.nextChar == 't':
+                                            self.tokenType = 3 #OUTPUT
+                                            self.lexemeIndex = 1 #OUTPUT
+                                            return self.handleNonSyntacticWords()
+
+                                    else:
+                                        print("ERROR: there is an invalid lexical error for the word ' "+ self.lexeme +"' at line " + str(self.nextLineNum) + " and position " + str(self.charPos))
+                                        self.nextLineNum += 1
+                                        self.charPos = 0
+                                        return 10, 1
+                                else:
+                                    print("ERROR: there is an invalid lexical error for the word ' "+ self.lexeme +"' at line " + str(self.nextLineNum) + " and position " + str(self.charPos))
+                                    self.nextLineNum += 1
+                                    self.charPos = 0
+                                    return 10, 1
+                            else:
+                                print("ERROR: there is an invalid lexical error for the word ' "+ self.lexeme +"' at line " + str(self.nextLineNum) + " and position " + str(self.charPos))
+                                self.nextLineNum += 1
+                                self.charPos = 0
+                                return 10, 1
+                        else:
+                            print("ERROR: there is an invalid lexical error for the word ' "+ self.lexeme +"' at line " + str(self.nextLineNum) + " and position " + str(self.charPos))
+                            self.nextLineNum += 1
+                            self.charPos = 0
+                            return 10, 1
+                    else:
+                        print("ERROR: there is an invalid lexical error for the word ' "+ self.lexeme +"' at line " + str(self.nextLineNum) + " and position " + str(self.charPos))
+                        self.nextLineNum += 1
+                        self.charPos = 0
+                        return 10, 1
                 elif self.nextChar == 'E':
-                    return self.handleE()
+                    self.scanNextChar()
+                    if self.nextChar == 'O':
+                        self.scanNextChar()
+                        if self.nextChar == 'F':
+                            return -2
+                        elif self.nextChar == 'L':
+                            self.tokenType = 11
+                            self.lexemeIndex = 1
+                            return self.tokenType, self.lexemeIndex
+                    else:
+                        print("ERROR: there is an invalid lexical error for the word ' "+ self.lexeme +"' at line " + str(self.nextLineNum) + " and position " + str(self.charPos))
+                        self.nextLineNum += 1
+                        self.charPos = 0
+                        return 10, 1
+                
+                elif self.nextChar == '\n' or self.nextChar == '\r':
+                    return 11, 1
                 else: # avoid infinite loop
                     return self.handleNonSyntacticWords()
                 
@@ -324,6 +654,7 @@ class Scanner():
         else:
             self.tokenType = 10
             return self.handleNonSyntacticWords()
+    
     #@profile
     def handleR(self):
         self.scanNextChar()
@@ -409,6 +740,7 @@ class Scanner():
                 return self.handleNonSyntacticWords()
 
         else:
+            print("in handleA else")
             self.tokenType = 10
             return self.handleNonSyntacticWords()
 
@@ -469,8 +801,6 @@ class Scanner():
                 self.lexemeIndex = 1 #=>
                 #self.charPos
                 return self.tokenType, self.lexemeIndex
-
-
         else:
             self.tokenType = 10
             return self.handleNonSyntacticWords()
@@ -485,10 +815,6 @@ class Scanner():
         peek = self.peekNextChar()
         while str(self.nextChar).isdigit() and str(peek).isdigit():
             self.scanNextChar()
-
-        # while self.lexeme[-1].isdigit() == False:
-        #     self.unScanChar()
-        #     self.lexeme = self.lexeme[:-1]
         if self.lexeme[-1].isdigit() == False:
             self.unScanChar()
 
@@ -496,9 +822,6 @@ class Scanner():
         if peek.isalpha():
             self.tokenType = 10
             self.lexemeIndex = 1
-            ##self.TOKENS[self.tokenType][self.lexemeIndex] = "ERROR: "+ self.lexeme +" uses invalid syntax at line " + str(self.nextLineNum) + " and position " + str(self.charPos)
-            
-        
         else:
             self.tokenType = 5 #CONSTANT
             self.lexemeIndex = 1
@@ -540,7 +863,3 @@ class Scanner():
         self.charPos = 0
     def setLineNum(self, line):
         self.nextLineNum = line
-
-    @staticmethod
-    def lexError(word, lineNo):
-        print >> sys.stderr, "Lexical Error: %i: \"%s\" is not a valid word." % (lineNo, word)

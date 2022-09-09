@@ -1,0 +1,36 @@
+This software checks a tarfile to see if it vaguely conforms to the standard
+for submission in COMP 412. To use the software, place the tar archive file
+in the directory ./FilesToTest and then invoke the Verifier by typing 
+
+  ./Verify 
+
+The command will create, as output, a file name REPORT that should appear in
+the current directory.
+
+Examine REPORT to find your tarfile.
+
+A correctly formed tarfile should result in the verifier discovering your
+name, your netid, and reporting that it found the executable.
+
+If it does not find these things, it will provide some rudimentary error
+messages.
+
+Missing name:  Either it did not find the README file or it did not 
+find a properly formatted NAME: line.
+
+Missing netid:  Either it did not find the README file or it did not
+find a properly formatted NETID: line.
+
+Failure to find the executable: If it found a makefile, the verifier
+executed a "make clean" followed by a "make build" followed by a "make".
+The results of the make are listed in the REPORT.
+
+After trying to run make, it looked for the file '412fe'.  If it failed
+to find the file, it reports an error.
+
+NOTE: The verifier did not try to run your executable. Things could still
+fail if the permissions are wrong or running ./412fe does not produce 
+correct behavior.
+
+-- keith cooper
+   June 2021.

@@ -16,33 +16,51 @@ def main():
     cmd_parser.add_argument('-s', "--scan", help='#rints tokens in token stream')
     cmd_parser.add_argument('-p', "--parse", help='invokes parser and reports on success or failure')
     cmd_parser.add_argument('-r', "--read", help='prints human readable version of parser\'s IR')
-    if len(sys.argv) == 1:
-        cmd_parser.print_help()
-        sys.exit(1)
-    args = cmd_parser.parse_args()    
-    for arg in sys.argv:
 
-        #for debugging purposes only
+    args, unknown = cmd_parser.parse_known_args()
+    print("len vars: " + str(len(vars(args))))
+    #print("unknown: " + str(unknown))
+    if unknown:
+        #print("Error: Unknown argument(s): " + str(unknown[0]))
+        parse(unknown[0])
+        return
+    else:
+        args = cmd_parser.parse_args()
+        print("args: " + str(args))
+    # if args:
+    #     if len(vars(args)) == 1:
+    #         parse(args[0])
+    #         return
+    #     else:
+    #         print("args: ", args)
+    #         sys.exit()
         
-
-        #UNCOMMENT AFTER DEBUGGING
-        if arg == '--h':
+    for arg in sys.argv:
+        print("arg: " + arg)
+        print(str(arg))
+        if arg == '-h':
+            print("help")
             cmd_parser.print_help()
-        elif arg == '--s':
+            sys.exit(1)
+        elif arg == '-s':
             print("scan")
             scan(args.scan)
-        elif arg == '--p':
+        elif arg == '-p':
             print("parser")
             parse(args.parse)
-        elif arg == '--r':
+        elif arg == '-r':
             print("read")
+        else:
+            if arg:
+                print("arg: " + arg)
+                parse(arg)
 
 def scan(filename):
     try: f = open(filename, 'r')
     except: print("Error: Error occured when opening file: " + filename)
     try:
+        print("Scanning file: " + filename)
         block = f.readlines() 
-        # block = block.replace("\\r\\n", "")
         block.append("EOF")
         scanner = Scanner()
     except:
@@ -50,7 +68,7 @@ def scan(filename):
 
     word = ''
     #block = block.replace("\\r\\n", "")
-    #print("block: " + str(block))
+    print("block: " + str(block))
     # for debugging purposes only
     numErrors = 0
     numNewLines = 0
