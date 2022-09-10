@@ -1,2 +1,2 @@
 Name	NetId	Conform	Correct	Scales	Points
-Xueyan Mu	xm14	87.5	86	100	88.625
+Xueyan Mu	xm14	100.0	86	100	93.0

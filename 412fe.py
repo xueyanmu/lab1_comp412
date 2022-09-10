@@ -18,7 +18,7 @@ def main():
     cmd_parser.add_argument('-r', "--read", help='prints human readable version of parser\'s IR')
 
     args, unknown = cmd_parser.parse_known_args()
-    print("len vars: " + str(len(vars(args))))
+    #print("len vars: " + str(len(vars(args))))
     #print("unknown: " + str(unknown))
     if unknown:
         #print("Error: Unknown argument(s): " + str(unknown[0]))
@@ -127,7 +127,13 @@ def parse(filename):
             parser = Parser()
             
             parser.setLineNumber(count)
-            parser.parseLine(line)
+            burp = parser.parseLine(line)
+            #print("burp: " + str(burp))
+            if burp == 11: # 11 means there was a \r or \n detected, move on to next line
+                #print("burpity burp brapp")
+                count+=1
+                continue # go to next line
+                
             count += 1
     end = time.time()
     print("time: " + str(end - start))

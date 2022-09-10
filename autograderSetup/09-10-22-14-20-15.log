@@ -1,0 +1,51 @@
+Auto-grader Configuration:
+  blocks found in :	auto_grade/blocks/
+=======================================================================
+Testing submission: xm14.tar
+grep: copy: No such file or directory
+grep: copy: No such file or directory
+Name: Xueyan Mu, NetId: xm14 	Date From Files: 2022-09-10
+
+--- built front end and should be ready to run ---
+ 
+Testing Correctness
+
+	parse.i 	0 correct lines identified as errors
+			5 errors found, 5 expected
+	report1.i 	0 correct lines identified as errors
+			0 errors found, 0 expected
+	report2.i 	0 correct lines identified as errors
+			0 errors found, 0 expected
+	report3.i 	0 correct lines identified as errors
+			0 errors found, 0 expected
+	scanner.i 	0 correct lines identified as errors
+			1 errors found, 2 expected
+	-------------------------
+	0 correct lines identified as errors
+	1 lines with errors missed
+
+Testing Conformance	(If we got this far, the tar file worked.)
+
+	Produced 'ERROR' message on missing or bad file name
+	Help message check found all options
+
+Testing Scalability:
+
+	T8k.i:  	0.502561 seconds
+	T16k.i:  	0.848628 seconds
+	T32k.i:  	1.585582 seconds
+	T64k.i:  	3.260286 seconds
+	T128k.i:  	6.247534 seconds
+
+	Scaling appears to be linear
+
+Scoring:
+	Conformance:	100.0%
+	Correctness:	86%
+	Scalability:	100%
+	Total Points:	93.0
+
+finished testing submission xm14.tar
+=======================================================================
+ 
+Grading run complete.
