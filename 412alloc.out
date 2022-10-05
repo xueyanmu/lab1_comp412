@@ -1,0 +1,75 @@
+ILOC Simulator, Version 412-2015-2
+Interlock settings: memory registers branches 
+
+0:	[loadI 128 => r1 (128)]
+1:	[loadI 132 => r2 (132)]
+2:	[loadI 136 => r3 (136)]
+3:	[loadI 140 => r4 (140)]
+4:	[loadI 144 => r5 (144)]
+5:	[loadI 148 => r6 (148)]
+6:	[loadI 152 => r7 (152)]
+7:	[loadI 156 => r8 (156)]
+8:	[loadI 160 => r9 (160)]
+9:	[loadI 164 => r10 (164)]
+10:	[loadI 168 => r11 (168)]
+11:	[loadI 172 => r12 (172)]
+12:	[loadI 176 => r13 (176)]
+13:	[loadI 180 => r14 (180)]
+14:	[loadI 184 => r15 (184)]
+15:	[loadI 188 => r16 (188)]
+16:	[loadI 192 => r17 (192)]
+17:	[loadI 196 => r18 (196)]
+18:	[loadI 200 => r19 (200)]
+19:	[loadI 204 => r20 (204)]
+20:	[load r20 (addr: 204) => r20 (0)]
+21:	[load r19 (addr: 200) => r19 (0)]
+22:	[load r18 (addr: 196) => r18 (0)] *20
+23:	[load r17 (addr: 192) => r17 (0)] *21
+24:	[load r16 (addr: 188) => r16 (0)] *22
+25:	[load r15 (addr: 184) => r15 (0)] *23
+26:	[load r14 (addr: 180) => r14 (0)] *24
+27:	[store r10 (164) => r13 (addr: 176)] *25
+28:	[ stall ] *26
+29:	[ stall ] *27
+30:	[load r13 (addr: 176) => r13 (164)]
+31:	[load r12 (addr: 172) => r12 (0)]
+32:	[load r11 (addr: 168) => r11 (0)] *30
+33:	[load r10 (addr: 164) => r10 (0)] *31
+34:	[load r9 (addr: 160) => r9 (0)] *32
+35:	[load r8 (addr: 156) => r8 (0)] *33
+36:	[load r7 (addr: 152) => r7 (0)] *34
+37:	[load r6 (addr: 148) => r6 (0)] *35
+38:	[load r5 (addr: 144) => r5 (0)] *36
+39:	[load r4 (addr: 140) => r4 (0)] *37
+40:	[load r3 (addr: 136) => r3 (0)] *38
+41:	[load r2 (addr: 132) => r2 (0)] *39
+42:	[load r1 (addr: 128) => r1 (0)] *40
+43:	[ stall ] *41
+44:	[ stall ] *42
+45:	[add r1 (0), r2 (0) => r2 (0)]
+46:	[add r2 (0), r3 (0) => r3 (0)]
+47:	[add r3 (0), r4 (0) => r4 (0)]
+48:	[add r4 (0), r5 (0) => r5 (0)]
+49:	[add r5 (0), r6 (0) => r6 (0)]
+50:	[add r6 (0), r7 (0) => r7 (0)]
+51:	[add r7 (0), r8 (0) => r8 (0)]
+52:	[add r8 (0), r9 (0) => r9 (0)]
+53:	[add r9 (0), r10 (0) => r10 (0)]
+54:	[add r10 (0), r11 (0) => r11 (0)]
+55:	[add r11 (0), r12 (0) => r12 (0)]
+56:	[add r12 (0), r15 (0) => r15 (0)]
+57:	[add r15 (0), r16 (0) => r16 (0)]
+58:	[add r16 (0), r17 (0) => r17 (0)]
+59:	[add r17 (0), r18 (0) => r18 (0)]
+60:	[add r18 (0), r19 (0) => r19 (0)]
+61:	[add r19 (0), r20 (0) => r20 (0)]
+62:	[loadI 1024 => r0 (1024)]
+63:	[store r20 (0) => r0 (addr: 1024)]
+64:	[ stall ]
+65:	[ stall ] *63
+66:	[output 1024 (0)]
+output generates => 0
+67:	[output 176 (164)]
+output generates => 164
+
+Executed 62 instructions and 62 operations in 68 cycles.
